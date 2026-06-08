@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.venv/
+env/
+.env
+
+# Project Data (SSD optimization)
+data/
+
+# OS
+.DS_Store
+Thumbs.db
