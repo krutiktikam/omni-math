@@ -92,9 +92,9 @@ async def reason_mathematically(request: InferenceRequest):
         # 3. Verify the core formula using SymPy (The Truth Layer)
         if response.core_formula and response.core_formula.upper() != "N/A":
             # Basic heuristic: only verify if it contains an equals sign or operators
-            if any(c in response.core_formula for c in "=+-*/^"):
                 response.verification_details = verification_service.verify_algebraic_expression(
-                    response.core_formula
+                    formula_latex=response.core_formula,
+                    final_answer_latex=response.final_answer
                 )
         
         return response

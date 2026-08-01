@@ -25,16 +25,29 @@ class ParsingService:
                 clean_text = re.sub(r'\n+', '\n', text).strip()
                 
                 if clean_text:
-                    chunks.append({
-                        "content": clean_text,
-                        "metadata": {
-                            "source": pdf_path.name,
-                            "page": page_num + 1,
-                            "type": "text_chunk"
-                        }
-                    })
+                    if len(clean_text) > 1200:
+                        sub_chunks = self.chunk_text(clean_text, chunk_size=1000, overlap=200)
+                        for sub_idx, sub_text in enumerate(sub_chunks):
+                            chunks.append({
+                                "content": sub_text,
+                                "metadata": {
+                                    "source": pdf_path.name,
+                                    "page": page_num + 1,
+                                    "sub_chunk": sub_idx + 1,
+                                    "type": "text_chunk"
+                                }
+                            })
+                    else:
+                        chunks.append({
+                            "content": clean_text,
+                            "metadata": {
+                                "source": pdf_path.name,
+                                "page": page_num + 1,
+                                "type": "text_chunk"
+                            }
+                        })
             doc.close()
-            logger.info(f"Successfully parsed {pdf_path.name}: {len(chunks)} chunks found.")
+            logger.info(f"Successfully parsed {pdf_path.name}: {len(chunks)} chunks generated.")
             return chunks
         except Exception as e:
             logger.error(f"Failed to parse PDF {pdf_path}: {e}")

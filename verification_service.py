@@ -8,27 +8,53 @@ class VerificationService:
     def __init__(self):
         pass
 
-    def verify_algebraic_expression(self, formula_latex: str) -> dict:
+    def verify_algebraic_expression(self, formula_latex: str, final_answer_latex: str = None) -> dict:
         """
         Parses a LaTeX formula and performs symbolic verification.
-        Returns a dictionary with the results.
+        Handles equations, expressions, and optional final answer validation.
         """
         try:
-            # Clean up LaTeX string for parsing (basic cleanup)
             clean_latex = formula_latex.replace('$', '').strip()
             
-            # Parse LaTeX to SymPy expression
-            expr = parse_latex(clean_latex)
+            # If LaTeX contains '=', handle LHS and RHS separately
+            if '=' in clean_latex and not clean_latex.startswith('Eq('):
+                parts = clean_latex.split('=', 1)
+                lhs_str, rhs_str = parts[0].strip(), parts[1].strip()
+                
+                # If LHS is function notation like f(x) or y, evaluate RHS
+                if lhs_str in ['f(x)', 'g(x)', 'y', 'z', 'f', 'g']:
+                    expr = parse_latex(rhs_str)
+                else:
+                    expr_lhs = parse_latex(lhs_str)
+                    expr_rhs = parse_latex(rhs_str)
+                    expr = expr_lhs - expr_rhs
+            else:
+                expr = parse_latex(clean_latex)
             
-            # Perform basic operations (simplification, expansion)
             simplified = sympy.simplify(expr)
             expanded = sympy.expand(expr)
             
+            x = sympy.Symbol('x')
+            derivative_wrt_x = sympy.diff(expr, x) if expr.has(x) else None
+            
+            answer_verified = None
+            if final_answer_latex:
+                try:
+                    ans_clean = final_answer_latex.replace('$', '').strip()
+                    ans_expr = parse_latex(ans_clean)
+                    # Check if final answer matches expression or its derivative
+                    is_exact_match = sympy.simplify(expr - ans_expr) == 0
+                    is_deriv_match = derivative_wrt_x is not None and sympy.simplify(derivative_wrt_x - ans_expr) == 0
+                    answer_verified = is_exact_match or is_deriv_match
+                except Exception:
+                    answer_verified = False
+
             return {
                 "verified": True,
                 "simplified": str(simplified),
                 "expanded": str(expanded),
-                "is_identity": simplified == 0 or simplified == 1 # Just a basic check
+                "derivative_wrt_x": str(derivative_wrt_x) if derivative_wrt_x is not None else "N/A",
+                "answer_verified": answer_verified
             }
         except Exception as e:
             logger.warning(f"SymPy verification failed for formula '{formula_latex}': {e}")

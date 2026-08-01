@@ -27,20 +27,39 @@ class VectorService:
             embedding_function=self.embedding_fn
         )
 
-    async def add_documents(self, chunks: List[Dict[str, Any]]):
+    async def add_documents(self, chunks: List[Dict[str, Any]], batch_size: int = 250):
         """
-        Adds parsed chunks to the vector database.
+        Adds parsed chunks to the vector database in safe batches.
         """
-        ids = [f"{chunk['metadata']['source']}_p{chunk['metadata']['page']}_{i}" for i, chunk in enumerate(chunks)]
-        documents = [chunk['content'] for chunk in chunks]
-        metadatas = [chunk['metadata'] for chunk in chunks]
+        import re
+        total = len(chunks)
+        if total == 0:
+            return
+
+        for start_idx in range(0, total, batch_size):
+            end_idx = min(start_idx + batch_size, total)
+            batch = chunks[start_idx:end_idx]
+            
+            ids = []
+            documents = []
+            metadatas = []
+            
+            for i, chunk in enumerate(batch):
+                clean_src = re.sub(r'[^a-zA-Z0-9_\-]', '_', chunk['metadata']['source'])
+                page_idx = chunk['metadata'].get('page', 1)
+                chunk_id = f"{clean_src}_p{page_idx}_{start_idx + i}"
+                ids.append(chunk_id)
+                documents.append(chunk['content'])
+                metadatas.append(chunk['metadata'])
+            
+            self.collection.upsert(
+                ids=ids,
+                documents=documents,
+                metadatas=metadatas
+            )
+            logger.info(f"Upserted batch {start_idx // batch_size + 1}/{(total + batch_size - 1) // batch_size} ({len(batch)} chunks)")
         
-        self.collection.add(
-            ids=ids,
-            documents=documents,
-            metadatas=metadatas
-        )
-        logger.info(f"Added {len(chunks)} chunks to ChromaDB.")
+        logger.info(f"Successfully processed {total} chunks in ChromaDB. Total collection size: {self.collection.count()}")
 
     def query(self, query_text: str, n_results: int = 3) -> Dict[str, Any]:
         """
