@@ -128,7 +128,8 @@ uvicorn main:app --reload --port 8000
 ```json
 {
   "prompt": "Find the derivative of f(x) = x^3 + 4*x^2 - 5*x + 7 with respect to x.",
-  "model": "deepseek-r1:1.5b"
+  "model": "deepseek-r1:1.5b",
+  "step_by_step": false
 }
 ```
 
@@ -146,6 +147,43 @@ uvicorn main:app --reload --port 8000
     "expanded": "-3*x**2 - 8*x + f'(x) + 5",
     "derivative_wrt_x": "-6*x + Derivative(f'(x), x) - 8",
     "answer_verified": true
+  }
+}
+```
+
+**With step-by-step solution (`step_by_step: true`):**
+```json
+{
+  "reasoning_steps": "Step 1: Identify the terms that can be differentiated individually.",
+  "core_formula": "f'(x) = 3x^2 + 8x - 5",
+  "final_answer": "3x^2 + 8x - 5",
+  "model_used": "deepseek-r1:1.5b",
+  "generation_time": 1.73,
+  "verification_details": {
+    "verified": true,
+    "simplified": "-3*x**2 - 8*x + f'(x) + 5",
+    "expanded": "-3*x**2 - 8*x + f'(x) + 5",
+    "derivative_wrt_x": "-6*x + Derivative(f'(x), x) - 8",
+    "answer_verified": true
+  },
+  "step_by_step_solution": {
+    "operation_type": "derivative",
+    "steps": [
+      {
+        "step_number": 1,
+        "explanation": "Start with the given function",
+        "expression_latex": "f(x) = x^3 + 4x^2 - 5x + 7",
+        "expression": "f(x) = x^3 + 4x^2 - 5x + 7"
+      },
+      {
+        "step_number": 2,
+        "explanation": "Apply differentiation rules (power rule and sum rule)",
+        "expression_latex": "f'(x) = 3x^2 + 8x - 5",
+        "expression": "f'(x) = 3x^2 + 8x - 5"
+      }
+    ],
+    "final_result": "3x^2 + 8x - 5",
+    "final_result_latex": "3x^2 + 8x - 5"
   }
 }
 ```
@@ -170,8 +208,9 @@ uvicorn main:app --reload --port 8000
 - [x] **Phase 1**: Infrastructure Setup & SSD Storage Optimization.
 - [x] **Phase 2**: Core FastAPI Engine, Ollama Integration & Pydantic JSON Schemas.
 - [x] **Phase 3**: Textbook PDF Parsing & ChromaDB Vector RAG (12,000+ chunks indexed).
-- [ ] **Phase 4**: Langfuse / OpenTelemetry Execution Tracing & Latency Map.
-- [ ] **Phase 5**: QLoRA Adapter Training & DPO Calibration Blocks (HuggingFace TRL).
+- [x] **Phase 4**: Step-by-Step Solution Generation & Extended SymPy Verification.
+- [ ] **Phase 5**: Langfuse / OpenTelemetry Execution Tracing & Latency Map.
+- [ ] **Phase 6**: QLoRA Adapter Training & DPO Calibration Blocks (HuggingFace TRL).
 
 ---
 
