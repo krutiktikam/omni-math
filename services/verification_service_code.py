@@ -5,7 +5,7 @@ import subprocess
 import sys
 import time
 from typing import Dict, Any, List, Optional
-from services.parsing_service import get_parser
+from services.parsing_service_code import get_parser
 
 logger = logging.getLogger("code_rag.verification")
 

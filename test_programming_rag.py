@@ -130,7 +130,7 @@ def test_programming_solution_service():
     print("Testing Programming Solution Service...")
 
     try:
-        from programming_solution_service import programming_solution_service
+        from services.programming_solution_service import programming_solution_service
 
         # Test Python decorators explanation
         steps = programming_solution_service.explain_concept("decorators", "python")
