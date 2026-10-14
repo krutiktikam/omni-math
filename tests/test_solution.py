@@ -4,7 +4,12 @@ Test script for the new step-by-step solution functionality
 """
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+if sys.platform == "win32":
+    try:
+        sys.stdout.reconfigure(encoding='utf-8')
+    except Exception:
+        pass
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from solution_service import solution_service
 from verification_service import verification_service

@@ -52,10 +52,9 @@ class VerificationService:
         parser = None
         try:
             import tree_sitter
-            if language in ["javascript", "js", "typescript", "ts"]:
-                import tree_sitter_javascript
-                js_lang = tree_sitter.Language(tree_sitter_javascript.language())
-                parser = tree_sitter.Parser(js_lang)
+            import tree_sitter_javascript
+            js_lang = tree_sitter.Language(tree_sitter_javascript.language())
+            parser = tree_sitter.Parser(js_lang)
         except Exception:
             pass  # Parser not available, will fall back to basic validation
 

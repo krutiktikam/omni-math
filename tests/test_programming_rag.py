@@ -8,9 +8,9 @@ import sys
 import os
 from pathlib import Path
 
-# Add the current directory and services directory to Python path
-sys.path.insert(0, str(Path(__file__).parent))
-sys.path.insert(0, str(Path(__file__).parent / "services"))
+# Add the project root and services directory to Python path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "services"))
 
 def test_parsing_service():
     """Test the enhanced parsing service with code and markdown"""

@@ -10,6 +10,8 @@ env/
 # Project Data (SSD optimization)
 data/
 
-# OS
+# OS & Logs
 .DS_Store
 Thumbs.db
+*.log
+.health_gate_check

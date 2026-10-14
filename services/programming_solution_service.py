@@ -10,13 +10,23 @@ class ProgrammingSolutionService:
                 return self._explain_python_decorators()
             elif 'async' in concept_lower:
                 return self._explain_python_async()
-                
+        elif language.lower() in ['javascript', 'js']:
+            if 'promise' in concept_lower or 'async' in concept_lower:
+                return self._explain_javascript_promises()
+
         # Fallback for unsupported concepts
-        return [{
-            "step_number": 1, 
-            "explanation": f"Basic explanation for {concept} in {language}.",
-            "code_example": None
-        }]
+        return [
+            {
+                "step_number": 1,
+                "explanation": f"Core concept introduction: understanding {concept} in {language}.",
+                "code_example": None
+            },
+            {
+                "step_number": 2,
+                "explanation": f"Implementation guidelines and standard practices for {concept} in {language}.",
+                "code_example": None
+            }
+        ]
 
     def _explain_python_decorators(self) -> List[Dict[str, Any]]:
         """Explain Python decorators step-by-step"""
@@ -69,6 +79,29 @@ class ProgrammingSolutionService:
                     "language": "python",
                     "code": "if __name__ == '__main__':\n    asyncio.run(main())",
                     "explanation": "Entry point that runs the async main function"
+                }
+            }
+        ]
+
+    def _explain_javascript_promises(self) -> List[Dict[str, Any]]:
+        """Explain JavaScript Promises and async/await step-by-step"""
+        return [
+            {
+                "step_number": 1,
+                "explanation": "A Promise in JavaScript represents an asynchronous operation that will produce a value in the future.",
+                "code_example": {
+                    "language": "javascript",
+                    "code": "const fetchData = () => {\n  return new Promise((resolve) => {\n    setTimeout(() => resolve({ data: 42 }), 1000);\n  });\n};",
+                    "explanation": "Creates a new Promise that resolves with data after 1 second"
+                }
+            },
+            {
+                "step_number": 2,
+                "explanation": "Handle promises using modern async/await syntax or the .then() method.",
+                "code_example": {
+                    "language": "javascript",
+                    "code": "async function handleData() {\n  const res = await fetchData();\n  console.log(res.data);\n}\nhandleData();",
+                    "explanation": "Awaits the promise resolution cleanly without callback nesting"
                 }
             }
         ]

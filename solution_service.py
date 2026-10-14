@@ -242,7 +242,7 @@ class SolutionService:
             if direction == "+":
                 limit_notation = "lim_{" + sympy.latex(var_symbol) + "→" + sympy.latex(approach_value) + "^+} "
             elif direction == "-":
-                limit_notation = "lim_{" + sympy.latex(var_symbol) + "→" + sympy.latex(approach_value) + ^-} "
+                limit_notation = "lim_{" + sympy.latex(var_symbol) + "→" + sympy.latex(approach_value) + "^-} "
             else:
                 limit_notation = "lim_{" + sympy.latex(var_symbol) + "→" + sympy.latex(approach_value) + "} "
 
