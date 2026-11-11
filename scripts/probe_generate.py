@@ -6,7 +6,7 @@ import time
 
 import httpx
 
-URL = "http://localhost:11434/api/generate"
+URL = "http://127.0.0.1:11434/api/generate"
 MODEL = "deepseek-r1:1.5b"
 OUT = pathlib.Path("tests/fixtures/raw_generate")
 
