@@ -49,11 +49,14 @@ Textbook text and the vector index are **not** distributed with this repository.
 They are built locally from the original downloads.
 - Calculus Volume 1, Algebra and Trigonometry 2e, Introductory Statistics 2e:
   OpenStax, Rice University, CC BY 4.0.
-  - Calculus Volume 1 Authors: Edwin “Jed” Herman, Gilbert Strang. Source: https://openstax.org/details/books/calculus-volume-1
-  - Algebra and Trigonometry 2e Author: Jay Abramson. Source: https://openstax.org/details/books/algebra-and-trigonometry-2e
-  - Introductory Statistics 2e Authors: Barbara Illowsky, Susan Dean. Source: https://openstax.org/details/books/introductory-statistics-2e
+  - Calculus Volume 1: Senior Contributing Authors: Edwin “Jed” Herman, Gilbert Strang. Source: https://openstax.org/details/books/calculus-volume-1
+  - Algebra and Trigonometry 2e: Senior / Lead Author: Jay Abramson. Source: https://openstax.org/details/books/algebra-and-trigonometry-2e
+  - Introductory Statistics 2e: Senior Contributing Authors: Barbara Illowsky, Susan Dean. Source: https://openstax.org/details/books/introductory-statistics-2e
 - Principles of Data Science: OpenStax, Rice University, CC BY-NC-SA 4.0.
-  Authors: Dr. Shaun V. Ault, Dr. Soohyun Nam Liao, Larry Musolino. Source: https://openstax.org/details/books/principles-data-science. Non-commercial use only.
-- Code and task examples: TheAlgorithms/Python (MIT), faif/python-patterns (MIT), and Code Alpaca (Apache-2.0).
-- Embedding model all-MiniLM-L6-v2: Apache-2.0 (sentence-transformers/all-MiniLM-L6-v2).
+  Senior Contributing Authors: Dr. Shaun V. Ault, Dr. Soohyun Nam Liao, Larry Musolino. Source: https://openstax.org/details/books/principles-data-science. Non-commercial use only.
+- Code and task examples:
+  - TheAlgorithms/Python: MIT License (confirmed in LICENSE.md).
+  - faif/python-patterns: licence: to verify (no LICENSE file present in upstream repository).
+  - Code Alpaca: licence: to verify (repo code is Apache-2.0, but dataset generated under OpenAI Terms of Use; non-commercial).
+- Embedding model all-MiniLM-L6-v2: Apache-2.0 (confirmed in Hugging Face model card).
 - deepseek-r1: MIT (as reported by `ollama show`).
