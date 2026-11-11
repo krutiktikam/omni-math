@@ -1,5 +1,5 @@
 import sympy
-from sympy.parsing.latex import parse_latex
+from math_input import parse_math
 from sympy import *
 import logging
 from typing import List, Dict, Any, Optional
@@ -24,8 +24,8 @@ class SolutionService:
                 raise ValueError("Equation must contain an equals sign")
 
             lhs_str, rhs_str = clean_latex.split('=', 1)
-            lhs_expr = parse_latex(lhs_str.strip())
-            rhs_expr = parse_latex(rhs_str.strip())
+            lhs_expr = parse_math(lhs_str.strip())
+            rhs_expr = parse_math(rhs_str.strip())
 
             # Create equation: lhs - rhs = 0
             equation = lhs_expr - rhs_expr
@@ -127,7 +127,7 @@ class SolutionService:
         """
         try:
             clean_latex = expression_latex.replace('$', '').strip()
-            expr = parse_latex(clean_latex)
+            expr = parse_math(clean_latex)
             var_symbol = symbols(variable)
 
             steps = []
@@ -179,7 +179,7 @@ class SolutionService:
         """
         try:
             clean_latex = expression_latex.replace('$', '').strip()
-            expr = parse_latex(clean_latex)
+            expr = parse_math(clean_latex)
             var_symbol = symbols(variable)
 
             steps = []
@@ -232,7 +232,7 @@ class SolutionService:
         """
         try:
             clean_latex = expression_latex.replace('$', '').strip()
-            expr = parse_latex(clean_latex)
+            expr = parse_math(clean_latex)
             var_symbol = symbols(variable)
             approach_value = sympy.sympify(approach_to)
 
