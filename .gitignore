@@ -7,8 +7,12 @@ venv/
 env/
 .env
 
-# Project Data (SSD optimization)
+# Project Data & Artifacts
 data/
+vector_db/
+*.pdf
+*.epub
+data_inventory.csv
 
 # OS & Logs
 .DS_Store

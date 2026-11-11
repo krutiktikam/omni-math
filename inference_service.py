@@ -82,4 +82,58 @@ class InferenceService:
             logger.error(f"Inference unexpected error: {e}")
             raise
 
+    async def generate_code_reasoning(self, prompt: str, language: str = "python", context: str = "") -> Dict[str, Any]:
+        """
+        Communicates with local Ollama instance (deepseek-r1:1.5b) to generate code and explanation
+        grounded in the retrieved RAG context.
+        """
+        model = settings.default_model
+        system_prompt = (
+            f"You are an expert programming assistant specializing in {language}. "
+            "Write clean, working, idiomatic code. "
+            "Enclose your code inside a markdown code block (e.g. ```python ... ```) with a brief explanation."
+        )
+
+        full_prompt = prompt
+        if context:
+            full_prompt = f"Reference Context from Local Knowledge Base:\n{context}\n\nTask:\n{prompt}"
+
+        payload = {
+            "model": model,
+            "prompt": full_prompt,
+            "system": system_prompt,
+            "stream": False
+        }
+
+        try:
+            async with httpx.AsyncClient(timeout=40.0) as client:
+                response = await client.post(f"{self.base_url}/api/generate", json=payload)
+                response.raise_for_status()
+                raw_text = response.json().get("response", "").strip()
+
+                code_snippet = ""
+                if "```" in raw_text:
+                    parts = raw_text.split("```")
+                    if len(parts) >= 3:
+                        lines = parts[1].strip().splitlines()
+                        if lines and lines[0].lower() in ["python", "py", "javascript", "js", "ts"]:
+                            code_snippet = "\n".join(lines[1:]).strip()
+                        else:
+                            code_snippet = parts[1].strip()
+
+                explanation = raw_text.split("```")[0].strip() if code_snippet else raw_text
+
+                return {
+                    "code": code_snippet or raw_text,
+                    "explanation": explanation or "Generated code example.",
+                    "language": language
+                }
+        except Exception as e:
+            logger.warning(f"Ollama code generation fallback: {e}")
+            return {
+                "code": "",
+                "explanation": f"Context retrieved: {context[:300]}",
+                "language": language
+            }
+
 inference_service = InferenceService()
