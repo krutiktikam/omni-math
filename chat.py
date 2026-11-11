@@ -278,7 +278,8 @@ def main():
 
                 else:
                     # Mathematical or general response
-                    print(f"\n\033[1;36mReasoning:\033[0m\n{data.get('reasoning_steps', 'No reasoning steps returned.')}\n")
+                    if data.get("reasoning_steps"):
+                        print(f"\n\033[1;36mReasoning:\033[0m\n{data['reasoning_steps']}\n")
 
                     if data.get("core_formula"):
                         print(f"\033[1;33mCore Formula:\033[0m {data.get('core_formula')}")
@@ -286,10 +287,14 @@ def main():
                     if data.get("final_answer"):
                         print(f"\033[1;32mFinal Answer:\033[0m {data.get('final_answer')}")
 
-                    verification = data.get("verification")
-                    if verification and verification.get("verified"):
+                    verification = data.get("verification") or {}
+                    if verification.get("status") == "computed":
+                        print(f"\033[1;44m[COMPUTED]\033[0m by {verification.get('method')} (no LLM)")
+                    elif verification.get("status") == "unverified" or data.get("status") == "unverified":
+                        print(f"\033[1;43m[UNVERIFIED]\033[0m {verification.get('reason', '')}")
+                    elif verification.get("verified"):
                         print(f"\033[1;42m[VERIFIED]\033[0m {verification.get('simplified', '')}")
-                    elif verification and verification.get("error"):
+                    elif verification.get("error"):
                         print(f"\033[1;43m[CHECK FAILED]\033[0m {verification.get('error', '')}")
 
                 print()  # Extra newline for spacing
