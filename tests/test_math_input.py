@@ -5,7 +5,7 @@ import pytest
 import sympy as sp
 
 from math_input import (InputRefused, check_derivative, extract_derivative_target,
-                        extract_equation, parse_math, solve_equation)
+                        extract_equation, parse_math, single_variable, solve_equation)
 
 FIXTURE = pathlib.Path("tests/fixtures/app/math_derivative.json")
 PROMPT = json.loads(FIXTURE.read_text(encoding="utf-8"))["request"]["prompt"]
@@ -57,3 +57,14 @@ def test_trig_equation_refused():
 def test_two_unknowns_refused():
     with pytest.raises(InputRefused):
         solve_equation("x + y", "3")
+
+
+def test_missing_equals_is_refused():
+    # recorded from the CLI: "Differentiate f(x) 3x^2" was answered 9*f*x**2
+    with pytest.raises(InputRefused):
+        single_variable(parse_math(extract_derivative_target("Differentiate f(x) 3x^2")))
+
+
+def test_single_variable_is_detected():
+    assert single_variable(parse_math("3x^2 + 2x")) == "x"
+    assert single_variable(parse_math("3t^2 + t")) == "t"
