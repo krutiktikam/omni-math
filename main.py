@@ -12,7 +12,7 @@ from vector_service import vector_service
 from inference_service import inference_service
 from solution_service import solution_service
 from config import settings
-from math_input import InputRefused, extract_derivative_target, extract_equation, parse_math
+from math_input import InputRefused, extract_derivative_target, extract_equation, parse_math, solve_equation
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -235,19 +235,18 @@ async def reason_endpoint(request: ReasonRequest):
                     )
                 if "=" in request.prompt:
                     lhs, rhs = extract_equation(request.prompt)
-                    parse_math(lhs)
-                    parse_math(rhs)
+                    solved = solve_equation(lhs, rhs)
+                    if not solved["substitution_check"]:
+                        return _unverified("solutions failed the substitution check")
                     steps = solution_service.solve_equation_step_by_step(f"{lhs} = {rhs}")
-                    if not steps or not steps[-1].get("expression"):
-                        return _unverified("equation step generation failed")
-                    final_res = steps[-1]["expression"]
+                    final_res = ", ".join(f"{solved['variable']} = {s}" for s in solved["solutions"])
                     return ReasonResponse(
                         status="success", type="math",
                         result={"answer": f"Solution: {final_res}", "steps": [s["explanation"] for s in steps]},
                         reasoning_steps="\n".join(f"Step {s['step_number']}: {s['explanation']}" for s in steps),
                         core_formula=f"{lhs} = {rhs}",
                         final_answer=final_res,
-                        verification={"status": "computed", "method": "sympy.solve", "llm_used": False},
+                        verification={"status": "computed", "method": "sympy.solve + substitution check", "llm_used": False},
                     )
             except InputRefused as exc:
                 return _unverified(f"input refused: {exc}")

@@ -1,0 +1,31 @@
+{
+  "captured": "2026-11-11T13:46:14",
+  "elapsed_s": 0.24,
+  "status": 200,
+  "request": {
+    "prompt": "Solve 2x + 3 = 7",
+    "step_by_step": true,
+    "include_programming": false
+  },
+  "response": {
+    "status": "success",
+    "type": "math",
+    "result": {
+      "answer": "Solution: x = 2",
+      "steps": [
+        "Start with the given equation",
+        "Rearrange equation to set one side to zero",
+        "Solve for x",
+        "Verify the solution by substitution - SOLUTION VERIFIED"
+      ]
+    },
+    "verification": {
+      "status": "computed",
+      "method": "sympy.solve + substitution check",
+      "llm_used": false
+    },
+    "reasoning_steps": "Step 1: Start with the given equation\nStep 2: Rearrange equation to set one side to zero\nStep 3: Solve for x\nStep 4: Verify the solution by substitution - SOLUTION VERIFIED",
+    "core_formula": "2x + 3 = 7",
+    "final_answer": "x = 2"
+  }
+}
