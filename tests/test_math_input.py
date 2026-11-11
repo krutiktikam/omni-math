@@ -5,7 +5,7 @@ import pytest
 import sympy as sp
 
 from math_input import (InputRefused, check_derivative, extract_derivative_target,
-                        extract_equation, parse_math)
+                        extract_equation, parse_math, solve_equation)
 
 FIXTURE = pathlib.Path("tests/fixtures/app/math_derivative.json")
 PROMPT = json.loads(FIXTURE.read_text(encoding="utf-8"))["request"]["prompt"]
@@ -33,3 +33,27 @@ def test_check_derivative_three_states():
     assert check_derivative("3x^2 + 2x", "6x + 2")["status"] == "verified"
     assert check_derivative("3x^2 + 2x", "6x + 1")["status"] == "refuted"
     assert check_derivative("Differentiate f(x) 3x^2", "6x")["status"] == "unverified"
+
+
+def test_extract_equation_keeps_function_names():
+    assert extract_equation("Solve sin x = 0") == ("sin x", "0")
+
+
+def test_solve_linear():
+    r = solve_equation("2x + 3", "7")
+    assert r["solutions"] == ["2"] and r["substitution_check"] is True
+
+
+def test_solve_quadratic():
+    r = solve_equation("x^2 - 5x + 6", "0")
+    assert sorted(r["solutions"]) == ["2", "3"] and r["substitution_check"] is True
+
+
+def test_trig_equation_refused():
+    with pytest.raises(InputRefused):
+        solve_equation("sin x", "0")
+
+
+def test_two_unknowns_refused():
+    with pytest.raises(InputRefused):
+        solve_equation("x + y", "3")
