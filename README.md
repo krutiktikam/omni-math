@@ -15,8 +15,9 @@ checks for code. Developed on an RTX 3050 (4 GB), Windows.
   `status: computed` and `llm_used: false`.
 - **Input guard:** ambiguous or non-math input is refused with a reason
   instead of being guessed (see `math_input.py`, `tests/test_math_input.py`).
-- **Programming questions:** retrieval over a local ChromaDB index, code
-  generation via Ollama, and Python syntax (`ast`) plus Ruff lint checks.
+- **Programming questions:** retrieval over a local ChromaDB index,
+  code generation via Ollama (often falls back to retrieved text, see limitations),
+  and Python syntax (`ast`) plus Ruff lint checks.
 - **CLI** (`chat.py`): `/setlang`, `/explain`, `/example`, free-form math.
 
 ## Current limitations
@@ -57,6 +58,6 @@ They are built locally from the original downloads.
 - Code and task examples:
   - TheAlgorithms/Python: MIT License (confirmed in LICENSE.md).
   - faif/python-patterns: licence: to verify (no LICENSE file present in upstream repository).
-  - Code Alpaca: licence: to verify (repo code is Apache-2.0, but dataset generated under OpenAI Terms of Use; non-commercial).
+  - Code Alpaca: licence: to verify (repo code Apache-2.0; the dataset's terms are unclear, treat as non-commercial).
 - Embedding model all-MiniLM-L6-v2: Apache-2.0 (confirmed in Hugging Face model card).
 - deepseek-r1: MIT (as reported by `ollama show`).
