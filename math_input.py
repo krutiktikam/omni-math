@@ -55,12 +55,29 @@ def extract_derivative_target(prompt: str) -> str:
     return m.group(1).strip()
 
 
+LEAD_VERBS = re.compile(r"^\s*(?:please\s+)?(?:solve|find|calculate|compute)\s+(?:the\s+equation\s+)?", re.IGNORECASE)
+
+
 def extract_equation(prompt: str) -> tuple[str, str]:
     left, sep, right = prompt.strip().rstrip("?.! ").partition("=")
     if not sep or "=" in right:
         raise InputRefused("need exactly one '='")
-    left = re.split(r"[A-Za-z]{2,}\s+", left)[-1]
-    return left.strip(), right.strip()
+    return LEAD_VERBS.sub("", left).strip(), right.strip()
+
+
+def solve_equation(lhs_text: str, rhs_text: str) -> dict:
+    """Polynomial equations in one unknown only: complete root sets, checked by substitution."""
+    lhs, rhs = parse_math(lhs_text), parse_math(rhs_text)
+    diff_expr = sp.expand(lhs - rhs)
+    syms = diff_expr.free_symbols
+    if len(syms) != 1:
+        raise InputRefused("need exactly one unknown after simplification")
+    v = next(iter(syms))
+    if not diff_expr.is_polynomial(v):
+        raise InputRefused("only polynomial equations are supported (other solution sets can be infinite)")
+    solutions = sp.solve(diff_expr, v)
+    checked = bool(solutions) and all(sp.simplify(diff_expr.subs(v, s)) == 0 for s in solutions)
+    return {"variable": str(v), "solutions": [str(s) for s in solutions], "substitution_check": checked}
 
 
 def check_derivative(expr_text: str, answer_text: str, var: str = "x") -> dict:
