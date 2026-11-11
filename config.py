@@ -32,7 +32,7 @@ class Settings(BaseSettings):
     app_name: str = "Omnimath Backend"
     storage_path: Path = storage_root
     debug: bool = False
-    ollama_base_url: str = "http://localhost:11434"
+    ollama_base_url: str = "http://127.0.0.1:11434"
     default_model: str = "deepseek-r1:1.5b"
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="OMNIMATH_")
