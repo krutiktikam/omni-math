@@ -7,6 +7,7 @@ Refusing a valid input is cheap; verifying a misparsed one is not.
 import re
 
 import sympy as sp
+from sympy.core.function import AppliedUndef
 from sympy.parsing.sympy_parser import (convert_xor, implicit_multiplication_application,
                                         parse_expr, standard_transformations)
 
@@ -39,10 +40,21 @@ def parse_math(text: str) -> sp.Expr:
     try:
         if "\\" in s or "{" in s:
             from sympy.parsing.latex import parse_latex
-            return parse_latex(s)
-        return parse_expr(s, local_dict=LOCALS, transformations=TRANSFORMS)
+            expr = parse_latex(s)
+        else:
+            expr = parse_expr(s, local_dict=LOCALS, transformations=TRANSFORMS)
     except Exception as exc:
         raise InputRefused(f"parse failed: {exc}") from exc
+    if expr.atoms(AppliedUndef):
+        raise InputRefused("undefined function in expression (a missing '='?)")
+    return expr
+
+
+def single_variable(expr: sp.Expr) -> str:
+    syms = sorted(str(s) for s in expr.free_symbols)
+    if len(syms) > 1:
+        raise InputRefused(f"more than one variable {syms}; refusing to guess which to differentiate")
+    return syms[0] if syms else "x"
 
 
 def extract_derivative_target(prompt: str) -> str:
