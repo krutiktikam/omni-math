@@ -49,7 +49,7 @@ def format_explanation_steps(steps):
     return result
 
 def main():
-    url = "http://localhost:8000/inference/reason"
+    url = "http://127.0.0.1:8000/inference/reason"
     current_language = "python"  # Default language
 
     print("\n" + "="*50)
