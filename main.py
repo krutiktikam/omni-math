@@ -12,6 +12,7 @@ from vector_service import vector_service
 from inference_service import inference_service
 from solution_service import solution_service
 from config import settings
+from math_input import InputRefused, extract_derivative_target, extract_equation, parse_math
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -100,6 +101,14 @@ def _extract_code_from_text(text: str, language: str = "python") -> str:
                 return "\n".join(lines[1:]).strip()
             return parts[1].strip()
     return text.strip()
+
+
+def _unverified(reason: str) -> ReasonResponse:
+    return ReasonResponse(
+        status="unverified", type="math",
+        result={"answer": None, "steps": [], "reason": reason},
+        verification={"status": "unverified", "reason": reason},
+    )
 
 
 # ==========================================
@@ -207,54 +216,45 @@ async def reason_endpoint(request: ReasonRequest):
         # ----------------------------------------------------
         # 2. HANDLE MATHEMATICAL QUERIES
         # ----------------------------------------------------
-        # Check if query is asking for derivative, integral, equation, or limit
-        if any(math_op in prompt_lower for math_op in ["derivative", "differentiate", "integral", "integrate", "solve", "limit", "="]):
+        if any(op in prompt_lower for op in ["derivative", "differentiate", "integral", "integrate", "solve", "limit", "="]):
             try:
-                # Solve symbolic derivative
                 if "derivative" in prompt_lower or "differentiate" in prompt_lower:
-                    expr = re.sub(r'[^0-9a-zA-Z\+\-\*\/\^\(\)\.]', '', request.prompt.split("of")[-1] if "of" in request.prompt else request.prompt)
-                    if expr:
-                        steps = solution_service.differentiate_step_by_step(expr)
-                        final_res = steps[-1]["expression"] if steps else ""
-                        return ReasonResponse(
-                            status="success",
-                            type="math",
-                            result={"answer": f"f'(x) = {final_res}", "steps": [s["explanation"] for s in steps]},
-                            reasoning_steps="\n".join([f"Step {s['step_number']}: {s['explanation']}" for s in steps]),
-                            core_formula=steps[0]["expression_latex"] if steps else "N/A",
-                            final_answer=final_res,
-                            verification={"verified": True, "simplified": final_res}
-                        )
-
-                # Solve equation
-                if "=" in request.prompt:
-                    steps = solution_service.solve_equation_step_by_step(request.prompt)
-                    final_res = steps[-1]["expression"] if steps else ""
+                    expr = extract_derivative_target(request.prompt)
+                    parse_math(expr)  # refuse words/junk before any solver sees it
+                    steps = solution_service.differentiate_step_by_step(expr)
+                    if not steps or not steps[-1].get("expression"):
+                        return _unverified("derivative step generation failed")
+                    final_res = steps[-1]["expression"]
                     return ReasonResponse(
-                        status="success",
-                        type="math",
-                        result={"answer": f"Solution: {final_res}", "steps": [s["explanation"] for s in steps]},
-                        reasoning_steps="\n".join([f"Step {s['step_number']}: {s['explanation']}" for s in steps]),
-                        core_formula=request.prompt,
+                        status="success", type="math",
+                        result={"answer": f"f'(x) = {final_res}", "steps": [s["explanation"] for s in steps]},
+                        reasoning_steps="\n".join(f"Step {s['step_number']}: {s['explanation']}" for s in steps),
+                        core_formula=steps[0]["expression_latex"],
                         final_answer=final_res,
-                        verification={"verified": True, "simplified": final_res}
+                        verification={"status": "computed", "method": "sympy.diff", "llm_used": False},
                     )
+                if "=" in request.prompt:
+                    lhs, rhs = extract_equation(request.prompt)
+                    parse_math(lhs)
+                    parse_math(rhs)
+                    steps = solution_service.solve_equation_step_by_step(f"{lhs} = {rhs}")
+                    if not steps or not steps[-1].get("expression"):
+                        return _unverified("equation step generation failed")
+                    final_res = steps[-1]["expression"]
+                    return ReasonResponse(
+                        status="success", type="math",
+                        result={"answer": f"Solution: {final_res}", "steps": [s["explanation"] for s in steps]},
+                        reasoning_steps="\n".join(f"Step {s['step_number']}: {s['explanation']}" for s in steps),
+                        core_formula=f"{lhs} = {rhs}",
+                        final_answer=final_res,
+                        verification={"status": "computed", "method": "sympy.solve", "llm_used": False},
+                    )
+            except InputRefused as exc:
+                return _unverified(f"input refused: {exc}")
             except Exception as math_err:
                 logger.info(f"Symbolic quick-solve skipped: {math_err}")
 
-        # Fallback general mathematical response
-        return ReasonResponse(
-            status="success",
-            type="math",
-            result={
-                "answer": f"Processed math query: {request.prompt}",
-                "steps": ["Step 1: Identify terms", "Step 2: Apply mathematical operation"] if request.step_by_step else []
-            },
-            reasoning_steps=f"Identified mathematical statement: {request.prompt}",
-            core_formula="f(x)",
-            final_answer=f"Result for {request.prompt}",
-            verification={"verified": True, "simplified": request.prompt}
-        )
+        return _unverified("no symbolic solver matched; the language model is not wired into this route yet")
 
     except Exception as e:
         logger.error(f"Error processing request: {e}")
