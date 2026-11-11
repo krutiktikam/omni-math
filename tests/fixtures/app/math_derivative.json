@@ -1,6 +1,6 @@
 {
-  "captured": "2026-11-11T13:23:51",
-  "elapsed_s": 0.52,
+  "captured": "2026-11-11T13:46:13",
+  "elapsed_s": 0.42,
   "status": 200,
   "request": {
     "prompt": "Differentiate f(x) = 3x^2 + 2x",
