@@ -1,0 +1,26 @@
+{
+  "captured": "2026-11-11T17:19:07",
+  "elapsed_s": 0.21,
+  "status": 200,
+  "request": {
+    "prompt": "Differentiate f(x) 3x^2",
+    "step_by_step": true,
+    "include_programming": false
+  },
+  "response": {
+    "status": "unverified",
+    "type": "math",
+    "result": {
+      "answer": null,
+      "steps": [],
+      "reason": "input refused: more than one variable ['f', 'x']; refusing to guess which to differentiate"
+    },
+    "verification": {
+      "status": "unverified",
+      "reason": "input refused: more than one variable ['f', 'x']; refusing to guess which to differentiate"
+    },
+    "reasoning_steps": null,
+    "core_formula": null,
+    "final_answer": null
+  }
+}

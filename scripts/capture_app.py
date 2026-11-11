@@ -16,6 +16,8 @@ CASES = {
     # payload below is a guess; match what chat.py sends for free-form math
     "math_derivative": {"prompt": "Differentiate f(x) = 3x^2 + 2x",
                         "step_by_step": True, "include_programming": False},
+    "math_missing_equals": {"prompt": "Differentiate f(x) 3x^2",
+                            "step_by_step": True, "include_programming": False},
     "math_equation": {"prompt": "Solve 2x + 3 = 7",
                       "step_by_step": True, "include_programming": False},
 }

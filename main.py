@@ -12,7 +12,7 @@ from vector_service import vector_service
 from inference_service import inference_service
 from solution_service import solution_service
 from config import settings
-from math_input import InputRefused, extract_derivative_target, extract_equation, parse_math, solve_equation
+from math_input import InputRefused, extract_derivative_target, extract_equation, parse_math, single_variable, solve_equation
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -220,14 +220,14 @@ async def reason_endpoint(request: ReasonRequest):
             try:
                 if "derivative" in prompt_lower or "differentiate" in prompt_lower:
                     expr = extract_derivative_target(request.prompt)
-                    parse_math(expr)  # refuse words/junk before any solver sees it
-                    steps = solution_service.differentiate_step_by_step(expr)
+                    var = single_variable(parse_math(expr))
+                    steps = solution_service.differentiate_step_by_step(expr, variable=var)
                     if not steps or not steps[-1].get("expression"):
                         return _unverified("derivative step generation failed")
                     final_res = steps[-1]["expression"]
                     return ReasonResponse(
                         status="success", type="math",
-                        result={"answer": f"f'(x) = {final_res}", "steps": [s["explanation"] for s in steps]},
+                        result={"answer": f"f'({var}) = {final_res}", "steps": [s["explanation"] for s in steps]},
                         reasoning_steps="\n".join(f"Step {s['step_number']}: {s['explanation']}" for s in steps),
                         core_formula=steps[0]["expression_latex"],
                         final_answer=final_res,
