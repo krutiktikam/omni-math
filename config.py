@@ -34,6 +34,13 @@ class Settings(BaseSettings):
     debug: bool = False
     ollama_base_url: str = "http://127.0.0.1:11434"
     default_model: str = "deepseek-r1:1.5b"
+    
+    ollama_num_predict: int = 2048
+    ollama_num_ctx: int = 4096
+    ollama_seed: int = 0
+    ollama_temperature: float = 0.0
+    ollama_timeout_s: float = 120.0
+    ollama_think: bool = True
 
     model_config = SettingsConfigDict(env_file=".env", env_prefix="OMNIMATH_")
 
